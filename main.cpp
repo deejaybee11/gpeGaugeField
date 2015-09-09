@@ -81,12 +81,12 @@ int main(){
 	pars.sigmaY = 2.5e-6;
 	
 	/*Length of each dimension in metres*/
-	pars.xGridLength = 40e-6;
-	pars.yGridLength = 40e-6;
+	pars.xGridLength = 20e-6;
+	pars.yGridLength = 20e-6;
 	
 	/*Trap frequencies in each dimension*/
-	pars.omegaX = 2*M_PI*60;
-	pars.omegaY = 2*M_PI*60;
+	pars.omegaX = 2*M_PI*100;
+	pars.omegaY = 2*M_PI*100;
 	
 	/*Mass of atomic species*/
 	pars.mass = 87 * 1.667e-27;
@@ -209,7 +209,7 @@ int main(){
 	mkl_free(tmp);
 	printf("FFT shift of k arrays complete\n");
 	
-	/*Initialize psi as a 1D array accessed as psi[i*nRows*nCols + j*nRows + k]*/
+	/*Initialize psi as a 1D array accessed as psi[i*nRows + j]*/
 	psi = (MKL_Complex16*)mkl_malloc(pars.N*sizeof(MKL_Complex16),64);
 	init(psi,pars);
 	if (psi == 0) goto failed;
@@ -228,12 +228,6 @@ int main(){
 	kinEnergyY = (MKL_Complex16*)mkl_malloc(pars.N*sizeof(MKL_Complex16),64);
 	createKinEnergyY(kinEnergyY,pars);
 	posPot = (MKL_Complex16*)mkl_malloc(pars.N*sizeof(MKL_Complex16),64);
-	printf("Not here\n");
-	
-	/*TESTING THE DIAGONALIZING*/
-	/*diagonalize(pMinusA, pars);
-	remove("pMinusA.fits");
-	saveArray(pMinusA, pars.N, "pMinusA.fits", pars, 0);*/
 	
 	
 	//////////////////////////////////// PREPARE THE DISCRETE FOURIER TRANSFORM ROUTINES /////////////////////////////////////////
@@ -511,6 +505,8 @@ static void saveArray(double *absPsi, int N, const char * fitsFileName, struct s
 	//printf("Create image %s\n", 0==status ? "PASSED" : "FAILED");
 	fits_update_key(fptr, TINT, "NX", &pars.nX, "Number of X points", &status);
 	fits_update_key(fptr, TINT, "NY", &pars.nY, "Number of Y points", &status);
+	fits_update_key(fptr, TINT, "LX", &pars.xGridLength, "Length in X", &status);
+	fits_update_key(fptr, TINT, "LY", &pars.yGridLength, "Length in Y", &status);
 	fits_update_key(fptr, TINT, "POSSPACE", &posSpace, "Image is in Position space?", &status);
 	//printf("Update keys %s\n", 0==status ? "PASSED" : "FAILED");
 	nelements = naxes[0] * naxes[1];

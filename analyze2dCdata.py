@@ -47,11 +47,12 @@ for i in glob.glob(folder+"/pngs/" + "*.png"):
 filename = folder + "/groundState.fits"
 fitsImage = fits.open(filename, mode='readonly')
 image = fitsImage[0].data
+xlen = fitsImage[0].header['LX'
 fitsImage.close()
 
 plt.ioff()
 fig, ax = plt.subplots()
-ax.imshow(image, cmap = cm.afmhot)
+ax.imshow(image, cmap = cm.afmhot, extent=[-40,40,-40,40])
 plt.savefig(folder+'/groundState.png',dpi = 250)
 plt.close('all')
 #
@@ -62,7 +63,7 @@ fitsImage.close()
 
 plt.ioff()
 fig, ax = plt.subplots()
-ax.imshow(image, cmap = cm.afmhot)
+ax.imshow(image, cmap = cm.afmhot, extent=[-40,40,-40,40])
 plt.savefig(folder+'/initPsi.png',dpi = 250)
 plt.close('all')
 
@@ -73,7 +74,7 @@ fitsImage.close()
 
 plt.ioff()
 fig, ax = plt.subplots()
-ax.imshow(image, cmap = cm.afmhot)
+ax.imshow(image, cmap = cm.afmhot, extent=[-40, 40,-40,40])
 plt.savefig(folder+'/energyX.png',dpi = 250)
 plt.close('all')
 
@@ -84,7 +85,7 @@ fitsImage.close()
 
 plt.ioff()
 fig, ax = plt.subplots()
-ax.imshow(image, cmap = cm.afmhot)
+ax.imshow(image, cmap = cm.afmhot, extent=[-40,40,-40,40])
 plt.savefig(folder+'/energyY.png',dpi = 250)
 plt.close('all')
 #
@@ -103,7 +104,7 @@ for i in range(0,numfiles):
 #for i in range(0,numfiles):
     
     fig, ax = plt.subplots()
-    ax.imshow(image, cmap = cm.afmhot)
+    ax.imshow(image, cmap = cm.afmhot, extent=[-40,40,-40,40])
     
     if i<10:
         plt.savefig(folder+"/pngs"+'/Psi00'+str(i)+'.png',dpi = 250)

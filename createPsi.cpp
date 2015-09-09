@@ -29,7 +29,7 @@ void init(MKL_Complex16 *psi, struct simPars pars)
 {
 	int index;
 	printf("Creating a %s for a %s evolution.\n", (pars.imProp == true) ? "circle" : "Gaussian", (pars.imProp == true) ? "imaginary time" : "real time");
-	/*If imProp is true, creates a sphere which is minimised to take on the shape of the trap when evolved in imaginary time. If imProp is false, creates a 3D Gaussian. The Gaussian is a superposition of two condensates, one with "zero" momentum and one with "2*hbar*k" momentum. k is taken as the wavenumber of 780nm light.*/
+	/*If imProp is true, creates a cylinder which is minimised to take on the shape of the trap when evolved in imaginary time. If imProp is false, creates a 2D Gaussian.*/
 	for (int i = 0; i < pars.nX; ++i)
 	{
 		for (int j = 0; j < pars.nY; ++j)
@@ -43,7 +43,7 @@ void init(MKL_Complex16 *psi, struct simPars pars)
 			}
 			else
 			{
-				if(pow((pow(pars.x[i],2.0) + pow(pars.y[j],2.0)),0.5) <= 8e-6)
+				if(pow((pow(pars.x[i],2.0) + pow(pars.y[j],2.0)),0.5) <= 5e-6)
 				{
 					psi[index].real = 1;
 				}
