@@ -85,14 +85,14 @@ int main(){
 	pars.yGridLength = 40e-6;
 	
 	/*Trap frequencies in each dimension*/
-	pars.omegaX = 2*M_PI*100;
-	pars.omegaY = 2*M_PI*100;
+	pars.omegaX = 2*M_PI*60;
+	pars.omegaY = 2*M_PI*60;
 	
 	/*Mass of atomic species*/
 	pars.mass = 87 * 1.667e-27;
 	
 	/*Iteration parameters*/
-	pars.nSteps = 100000;
+	pars.nSteps = 1;
 	pars.iSteps = 10000;
 	int maxCount = 20000; //Number of steps until field is at max strength
 	pars.imProp = true;
@@ -351,8 +351,8 @@ int main(){
 			/*Normalizes wavefunction so integral is = 1*/
 			for(int ii = 0; ii < pars.N; ++ii)
 			{	
-				tempR = psi[ii].real * sqrt(pars.nAtoms/(psiSum * pars.dx * pars.dy));
-				tempI = psi[ii].imag * sqrt(pars.nAtoms/(psiSum * pars.dx * pars.dy));
+				tempR = psi[ii].real * sqrt(1.0/(psiSum * pars.dx * pars.dy));
+				tempI = psi[ii].imag * sqrt(1.0/(psiSum * pars.dx * pars.dy));
 				psi[ii].real = tempR;
 				psi[ii].imag = tempI;	
 			}

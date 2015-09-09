@@ -86,8 +86,11 @@ void createKinEnergyY(MKL_Complex16 *kinEnergyY, struct simPars pars)
                         index = i*pars.nY + j;
                         kinEnergyY[index].real = cos((pars.dt / HBAR) * (pow(HBAR,2.0)*(pow(pars.kY[i],2.0))) / (2.0 * pars.mass));
                         kinEnergyY[index].imag = -1*sin((pars.dt / HBAR) *(pow(HBAR,2.0)*(pow(pars.kY[i],2.0))) / (2.0 * pars.mass));
+			saveE[index] = pow(HBAR,2.0)*(pow(pars.kY[i],2.0)) / (2.0 * pars.mass);
                 }
         }
+	remove("energyY.fits");
+	saveArray(saveE, pars.N, "energyY.fits", pars, 0);
 }
 
 
@@ -103,7 +106,7 @@ void createNonlinearEnergy(MKL_Complex16 *posPot, MKL_Complex16 *psi, struct sim
 			{
 				index = ii*pars.nY + jj;
 				hPotVal = (pars.mass/2.0) * (pow(pars.omegaX,2.0)*pow(pars.x[ii],2.0) + pow(pars.omegaY,2.0)*pow(pars.y[jj],2.0));
-				posPot[index].real = exp(-1.0 * (pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag)/pars.nAtoms + hPotVal)* pars.dt / HBAR);
+				posPot[index].real = exp(-1.0 * (pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal)* pars.dt / HBAR);
 				posPot[index].imag = 0;
 			}
 		}
@@ -116,8 +119,8 @@ void createNonlinearEnergy(MKL_Complex16 *posPot, MKL_Complex16 *psi, struct sim
 			{
 				index = ii*pars.nY + jj;
 				hPotVal = 0;
-				posPot[index].real = cos((pars.intPot * (pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR));
-				posPot[index].imag = -1*sin((pars.intPot * (pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR));
+				posPot[index].real = cos((pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
+				posPot[index].imag = -1*sin((pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
 			}
 		}
 	}
@@ -129,8 +132,8 @@ void createNonlinearEnergy(MKL_Complex16 *posPot, MKL_Complex16 *psi, struct sim
 			{
 				index = ii*pars.nY + jj;
 				hPotVal = ((pars.mass/2.0) * (pow(pars.omegaX,2.0)*pow(pars.x[ii],2.0) + pow(pars.omegaY,2.0)*pow(pars.y[jj],2.0)));
-				posPot[index].real = cos((pars.intPot * (pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR));
-				posPot[index].imag = -1*sin((pars.intPot * (pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR));
+				posPot[index].real = cos((pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
+				posPot[index].imag = -1*sin((pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
 			}
 		}
 	}
