@@ -84,8 +84,8 @@ void createKinEnergyY(MKL_Complex16 *kinEnergyY, struct simPars pars)
                 for (int j = 0; j < pars.nY; ++j)
                 {
                         index = i*pars.nY + j;
-                        kinEnergyY[index].real = cos((pars.dt / HBAR) * (pow(HBAR,2.0)*(pow(pars.kY[i],2.0))) / (2.0 * pars.mass));
-                        kinEnergyY[index].imag = -1*sin((pars.dt / HBAR) *(pow(HBAR,2.0)*(pow(pars.kY[i],2.0))) / (2.0 * pars.mass));
+                        kinEnergyY[index].real = cos((0.5*pars.dt / HBAR) * (pow(HBAR,2.0)*(pow(pars.kY[i],2.0))) / (2.0 * pars.mass));
+                        kinEnergyY[index].imag = -1*sin((0.5*pars.dt / HBAR) *(pow(HBAR,2.0)*(pow(pars.kY[i],2.0))) / (2.0 * pars.mass));
 			saveE[index] = pow(HBAR,2.0)*(pow(pars.kY[i],2.0)) / (2.0 * pars.mass);
                 }
         }

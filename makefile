@@ -1,7 +1,7 @@
 EXEC = tssp
 CC = icpc
 SRC_FILES = createPsi.cpp createPotential.cpp diagonalize.cpp main.cpp
-MKLROOT = /opt/intel/mkl
+MKLROOT = /opt/intel/parallel/mkl
 MKLINCLUDE = $(MKLROOT)/include
 LOCALINCLUDE = /usr/local/include
 LOCALLIB = /use/local/lib

@@ -85,24 +85,24 @@ int main(){
 	pars.yGridLength = 20e-6;
 	
 	/*Trap frequencies in each dimension*/
-	pars.omegaX = 2*M_PI*100;
-	pars.omegaY = 2*M_PI*100;
+	pars.omegaX = 2*M_PI*150;
+	pars.omegaY = 2*M_PI*150;
 	
 	/*Mass of atomic species*/
 	pars.mass = 87 * 1.667e-27;
 	
 	/*Iteration parameters*/
-	pars.nSteps = 1;
-	pars.iSteps = 10000;
-	int maxCount = 20000; //Number of steps until field is at max strength
+	pars.nSteps = 1000;
+	pars.iSteps = 1000;
+	int maxCount = 200000; //Number of steps until field is at max strength
 	pars.imProp = true;
-	pars.dt = 1e-6;
+	pars.dt = 1e-8;
 	
 	/*Gauge potential parameters*/
-	pars.detuningGradient = -0.5*9.274e-24*0.04/HBAR;
 	pars.kRaman = 2*M_PI/780e-9;
 	pars.eRec = pow(HBAR,2)*pow(pars.kRaman,2)/(2*pars.mass);
-	pars.omegaR = 0*8.2*pars.eRec;
+	pars.detuningGradient = -0.04*pars.eRec*pars.kRaman/HBAR;
+	pars.omegaR = 8.2*pars.eRec;
 	
 	/*Interaction Potential*/
 	pars.nAtoms = 30000;
@@ -228,7 +228,6 @@ int main(){
 	kinEnergyY = (MKL_Complex16*)mkl_malloc(pars.N*sizeof(MKL_Complex16),64);
 	createKinEnergyY(kinEnergyY,pars);
 	posPot = (MKL_Complex16*)mkl_malloc(pars.N*sizeof(MKL_Complex16),64);
-	
 	
 	//////////////////////////////////// PREPARE THE DISCRETE FOURIER TRANSFORM ROUTINES /////////////////////////////////////////
 	/*Check version of DFTI package*/
@@ -408,28 +407,35 @@ int main(){
 			std::string currFileName = "fits/psi" + std::to_string(i/modFac) + ".fits";
 			saveArray(absPsi, pars.N, currFileName.c_str(), pars, 0);
 		}
-		diagonalize(pMinusA, kinEnergy, count, maxCount, pars);
-		remove("energyX.fits");
-		saveArray(pMinusA, pars.N, "energyX.fits", pars, 0);
+		diagonalize(pMinusA, kinEnergy, maxCount, maxCount, pars);
+//		remove("energyX.fits");
+//		saveArray(pMinusA, pars.N, "energyX.fits", pars, 0);
+		
 		/*Forward FFT*/
 		status = DftiComputeForward(descx, psi, psi);
 		if (0 != status) goto failed;
-		/*Multiplies the momentum space wavefunction with kinEnergy and saves result to psi. Is an in-place routine.*/
 		vzMul(pars.N,psi,kinEnergy,psi);
 		status = DftiComputeBackward(descx, psi, psi);
+		if (0 != status) goto failed;
 		status = DftiComputeForward(descy, psi, psi);
 		if (0 != status) goto failed;
 		vzMul(pars.N, psi, kinEnergyY, psi);
-
-		/*Backward FFT*/		
 		status = DftiComputeBackward(descy, psi, psi);
 		if (0 != status) goto failed;
 
-		/*Calculates the nonlinear potential exponential*/
-		createNonlinearEnergy(posPot, psi, pars, false, true);
-				
-		/*Multiplies psi with posPot and saves result to psi. Is an in-place routine.*/		
+		createNonlinearEnergy(posPot, psi, pars, false, true);	
 		vzMul(pars.N, psi, posPot, psi);
+		
+		status = DftiComputeForward(descy, psi, psi);
+		if (0 != status) goto failed;
+		vzMul(pars.N, psi, kinEnergyY, psi);		
+		status = DftiComputeBackward(descy, psi, psi);
+		if (0 != status) goto failed;
+		
+		status = DftiComputeForward(descx, psi, psi);
+		if (0 != status) goto failed;
+		vzMul(pars.N,psi,kinEnergy,psi);
+		status = DftiComputeBackward(descx, psi, psi);
 		
 		/*Compute absolute value of psi*/
 		vzAbs(pars.N,psi,absPsi);
@@ -505,8 +511,8 @@ static void saveArray(double *absPsi, int N, const char * fitsFileName, struct s
 	//printf("Create image %s\n", 0==status ? "PASSED" : "FAILED");
 	fits_update_key(fptr, TINT, "NX", &pars.nX, "Number of X points", &status);
 	fits_update_key(fptr, TINT, "NY", &pars.nY, "Number of Y points", &status);
-	fits_update_key(fptr, TINT, "LX", &pars.xGridLength, "Length in X", &status);
-	fits_update_key(fptr, TINT, "LY", &pars.yGridLength, "Length in Y", &status);
+	fits_update_key(fptr, TDOUBLE, "LX", &pars.xGridLength, "Length in X", &status);
+	fits_update_key(fptr, TDOUBLE, "LY", &pars.yGridLength, "Length in Y", &status);
 	fits_update_key(fptr, TINT, "POSSPACE", &posSpace, "Image is in Position space?", &status);
 	//printf("Update keys %s\n", 0==status ? "PASSED" : "FAILED");
 	nelements = naxes[0] * naxes[1];

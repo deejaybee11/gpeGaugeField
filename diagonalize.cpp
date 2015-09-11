@@ -62,10 +62,11 @@ int diagonalize(double *pMinusA, MKL_Complex16 *kinEnergy, int count, int maxCou
 		delta[i] = ((double)count/(double)maxCount)*pars.detuningGradient*pars.y[i];
 	
 	}
-				
-	for(int i = 0; i < pars.nX; ++i)
+	
+	#pragma omp parallel for		
+	for(int i = 0; i < pars.nY; ++i)
 	{
-		for(int j = 0; j < pars.nY; ++j)
+		for(int j = 0; j < pars.nX; ++j)
 		{
 			index = i*pars.nY + j;
 			
@@ -73,16 +74,9 @@ int diagonalize(double *pMinusA, MKL_Complex16 *kinEnergy, int count, int maxCou
 			H2 = (pow(HBAR,2))*pow(pars.kX[j],2)/(2*pars.mass);
 			H3 = (pow(HBAR,2))*pow((pars.kX[j] - 2*pars.kRaman),2)/(2*pars.mass) + HBAR*delta[i];
 			    
-			MKL_Complex16 Ht[9] = {{H1,0}, {pars.omegaR,0}, {0,0}, {pars.omegaR,0}, {H2,0}, {pars.omegaR,0}, {0,0}, {pars.omegaR,0}, {H3,0}};       
+			MKL_Complex16 Ht[9] = {{H1,0}, {pars.omegaR/2.0,0}, {0,0}, {pars.omegaR/2.0,0}, {H2,0}, {pars.omegaR/2.0,0}, {0,0}, {pars.omegaR/2.0,0}, {H3,0}};       
 				
 			info = LAPACKE_zgeev(LAPACK_ROW_MAJOR, 'N', 'N', n, Ht, lda, eigenVals, vl, ldvl, vr, ldvr);
-			if(info != 0)
-			{
-				std::cout << info <<  "   funcing pringsdfjhalsd nkj asnd " << std::endl;
-				counter[0] = i;
-				counter[1] = j;
-				goto failed;
-			}
 			
 			if(eigenVals[0].real < eigenVals[1].real)
 			{
@@ -97,14 +91,10 @@ int diagonalize(double *pMinusA, MKL_Complex16 *kinEnergy, int count, int maxCou
 			
 		} 
 	}
-	for (int i = 0; i < pars.nX; ++i)
-	{
-		for (int j = 0; j < pars.nY; ++j)
-		{	
-			index = i*pars.nY + j;
-			kinEnergy[index].real = cos((pars.dt / HBAR) * pMinusA[index]);
-			kinEnergy[index].imag = -1*sin((pars.dt / HBAR) * pMinusA[index]);
-		}
+	for (int i = 0; i < pars.N; ++i)
+	{;
+		kinEnergy[i].real = cos((0.5*pars.dt / HBAR) * pMinusA[i]);
+		kinEnergy[i].imag = -1*sin((0.5*pars.dt / HBAR) * pMinusA[i]);
 	}
 
 	goto cleanup;
@@ -114,8 +104,5 @@ int diagonalize(double *pMinusA, MKL_Complex16 *kinEnergy, int count, int maxCou
 		if(info != 0) exit(EXIT_FAILURE);
 		return 0;
 	
-	failed:
-		printf("Failed in routine at step i=%d j=%d with info=%d\n", counter[0], counter[1], (int)info);
-		goto cleanup;
 }
 
