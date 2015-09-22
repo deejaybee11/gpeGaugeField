@@ -98,8 +98,9 @@ void createNonlinearEnergy(MKL_Complex16 *posPot, MKL_Complex16 *psi, struct sim
 {	
 	double hPotVal;
 	int index;
-	if(imProp==true && (hPotOn==true || hPotOn==false))
+	if(imProp==true && (hPotOn==false || hPotOn==true))
 	{
+		#pragma omp parallel for private(index, hPotVal)
 		for(int ii = 0; ii < pars.nX; ++ii)
 		{
 			for(int jj = 0; jj < pars.nY; ++jj)
@@ -112,27 +113,29 @@ void createNonlinearEnergy(MKL_Complex16 *posPot, MKL_Complex16 *psi, struct sim
 		}
 	}
 	else if(imProp==false && hPotOn==false)
-	{
+	{	
+		#pragma omp parallel for private(index)
 		for(int ii = 0; ii < pars.nX; ++ii)
 		{
 			for(int jj = 0; jj < pars.nY; ++jj)
 			{
 				index = ii*pars.nY + jj;
 				hPotVal = 0;
-				posPot[index].real = cos((pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
+				posPot[index].real = cos((pars.nAtoms*pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
 				posPot[index].imag = -1*sin((pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
 			}
 		}
 	}
 	else
-	{
+	{	
+		#pragma omp parallel for private(index, hPotVal)
 		for(int ii = 0; ii < pars.nX; ++ii)
 		{
 			for(int jj = 0; jj < pars.nY; ++jj)
 			{
 				index = ii*pars.nY + jj;
 				hPotVal = ((pars.mass/2.0) * (pow(pars.omegaX,2.0)*pow(pars.x[ii],2.0) + pow(pars.omegaY,2.0)*pow(pars.y[jj],2.0)));
-				posPot[index].real = cos((pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
+				posPot[index].real = cos((pars.nAtoms*pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
 				posPot[index].imag = -1*sin((pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
 			}
 		}

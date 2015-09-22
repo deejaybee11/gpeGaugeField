@@ -30,19 +30,29 @@ void init(MKL_Complex16 *psi, struct simPars pars)
 	int index;
 	printf("Creating a %s for a %s evolution.\n", (pars.imProp == true) ? "circle" : "Gaussian", (pars.imProp == true) ? "imaginary time" : "real time");
 	/*If imProp is true, creates a cylinder which is minimised to take on the shape of the trap when evolved in imaginary time. If imProp is false, creates a 2D Gaussian.*/
-	for (int i = 0; i < pars.nX; ++i)
-	{
-		for (int j = 0; j < pars.nY; ++j)
+	if(!pars.imProp){
+		for (int i = 0; i < pars.nX; ++i)
 		{
-			int index = i*pars.nY + j;
-			if(!pars.imProp){
-			
+			for (int j = 0; j < pars.nY; ++j)
+			{
+				index = i*pars.nY + j;
+	
+				
 				psi[index].real = exp(-pow(pars.x[i],2.0)/pow(pars.sigmaX,2.0) - pow(pars.y[j],2.0)/pow(pars.sigmaY,2.0));
 			
 				psi[index].imag = 0;
+
 			}
-			else
+		}
+	}
+	else
+	{
+		for (int i = 0; i < pars.nX; ++i)
+		{
+			for (int j = 0; j < pars.nY; ++j)
 			{
+				index = i*pars.nY + j;
+	
 				if(pow((pow(pars.x[i],2.0) + pow(pars.y[j],2.0)),0.5) <= 5e-6)
 				{
 					psi[index].real = 1;

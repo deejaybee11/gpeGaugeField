@@ -92,11 +92,11 @@ int main(){
 	pars.mass = 87 * 1.667e-27;
 	
 	/*Iteration parameters*/
-	pars.nSteps = 1000;
-	pars.iSteps = 1000;
-	int maxCount = 200000; //Number of steps until field is at max strength
+	pars.nSteps = 1000000000;
+	pars.iSteps = 1000000;//500000;
+	int maxCount = 200000000; //Number of steps until field is at max strength
 	pars.imProp = true;
-	pars.dt = 1e-8;
+	pars.dt = 1e-9;
 	
 	/*Gauge potential parameters*/
 	pars.kRaman = 2*M_PI/780e-9;
@@ -107,7 +107,9 @@ int main(){
 	/*Interaction Potential*/
 	pars.nAtoms = 30000;
 	pars.aScatt = 5.186e-9;
-	pars.intPot = (4*M_PI*pow(HBAR,2.0)*pars.aScatt*pars.nAtoms)/pars.mass;
+	double U = (4*M_PI*pow(HBAR,2.0)*pars.aScatt)/pars.mass;
+	double lx = pow((HBAR/(pars.omegaX*pars.mass)),0.5);
+	pars.intPot = U/lx;
 	std::cout << "Intpot = " << pars.intPot << std::endl;
 	
 	/*Clears all files from fits folder. fitsio throws a tantrum if the file already exists.*/
@@ -128,7 +130,7 @@ int main(){
 	/*DFTI descriptor handle as described in the Intel MKL Reference Manual*/
 	DFTI_DESCRIPTOR_HANDLE handle = 0, descx = 0, descy = 0;
 	
-	/*Assign memory locations to x, y, z arrays*/
+	/*Assign memory locations to x, y arrays*/
 	pars.x = 0;
 	pars.x = (double*)mkl_malloc(pars.nX*sizeof(double),64);
 	if (pars.x == 0) goto failed;
@@ -136,7 +138,7 @@ int main(){
 	pars.y = (double*)mkl_malloc(pars.nY*sizeof(double),64);
 	if (pars.y == 0) goto failed;
 	
-	/*Fill elements of x, y, z arrays*/
+	/*Fill elements of x, y arrays*/
 	for (int i = 0; i < pars.nX; ++i)
 	{
 		pars.x[i] = -1.0 * pars.xGridLength / 2.0 + i*pars.xGridLength / ((double)pars.nX - 1.0);
@@ -159,54 +161,44 @@ int main(){
 	if (pars.kY == 0) goto failed;
 	
 	/*Fill elements of kx, ky arrays*/
-	double *a;
-	a = (double*)mkl_malloc(2*sizeof(double),64);
-	a[0] = -pars.nX / 2.0;
-	a[1] = -pars.nY / 2.0;
-	double *b;
-	b = (double*)mkl_malloc(2*sizeof(double),64);
-	b[0] = pars.nX / 2.0 - 1;
-	b[1] = pars.nY / 2.0 - 1;
-	double *step;
-	step = (double*)mkl_malloc(2*sizeof(double),64);
-	step[0] = (2*M_PI / pars.xGridLength) * ((b[0] - a[0]) / (pars.nX - 1.0));
-	step[1] = (2*M_PI / pars.yGridLength) * ((b[1] - a[1]) / (pars.nY - 1.0));
+	double aX, aY;
+	aX = -pars.nX / 2.0;
+	aY = -pars.nY / 2.0;
+	double bX, bY;
+	bX = pars.nX / 2.0 - 1;
+	bY = pars.nY / 2.0 - 1;
+	double stepX, stepY;
+	stepX = (2*M_PI / pars.xGridLength) * ((bX - aX) / (pars.nX - 1.0));
+	stepY = (2*M_PI / pars.yGridLength) * ((bY - aY) / (pars.nY - 1.0));
 	
 	for (int i = 0; i < pars.nX; ++i)
 	{
-		pars.kX[i] = (2 * M_PI / pars.xGridLength) * a[0] + i*step[0];
+		pars.kX[i] = (2 * M_PI / pars.xGridLength) * aX + i*stepX;
 	}
 	for (int i = 0; i < pars.nY; ++i)
 	{
-		pars.kY[i] = (2 * M_PI / pars.yGridLength) * a[1] + i*step[1];
+		pars.kY[i] = (2 * M_PI / pars.yGridLength) * aY + i*stepY;
 	}
 	
 	printf("kx, ky arrays allocated\n");
-	mkl_free(step);
-	mkl_free(a);
-	mkl_free(b);
-	
+
 	/*Swap left and right hand sides of wavenumber arrays so they are inline with the DFT*/
-	double *tmp;
-	int *n2;
-	tmp = (double*)mkl_malloc(sizeof(double),64);
-	n2 = (int*)mkl_malloc(3*sizeof(int),64);
-	n2[0] = pars.nX / 2.0;
-	n2[1] = pars.nY / 2.0;
-	for (int i = 0; i < n2[0]; ++i)
+	double tmp;
+	int n2X, n2Y;
+	n2X= pars.nX / 2.0;
+	n2Y = pars.nY / 2.0;
+	for (int i = 0; i < n2X; ++i)
 	{
-		tmp[0] = pars.kX[i];
-		pars.kX[i] = pars.kX[i + n2[0]];
-		pars.kX[i+n2[0]] = tmp[0];
+		tmp = pars.kX[i];
+		pars.kX[i] = pars.kX[i + n2X];
+		pars.kX[i+n2X] = tmp;
 	}
-	for (int i = 0; i < n2[1]; ++i)
+	for (int i = 0; i < n2Y; ++i)
 	{
-		tmp[0] = pars.kY[i];
-		pars.kY[i] = pars.kY[i + n2[1]];
-		pars.kY[i+n2[1]] = tmp[0];
+		tmp = pars.kY[i];
+		pars.kY[i] = pars.kY[i + n2Y];
+		pars.kY[i+n2Y] = tmp;
 	}
-	mkl_free(n2);
-	mkl_free(tmp);
 	printf("FFT shift of k arrays complete\n");
 	
 	/*Initialize psi as a 1D array accessed as psi[i*nRows + j]*/
@@ -344,8 +336,8 @@ int main(){
 			/*Normalizes wavefunction so integral is = 1*/
 			for(int ii = 0; ii < pars.N; ++ii)
 			{	
-				tempR = psi[ii].real * sqrt(1.0/(psiSum * pars.dx * pars.dy));
-				tempI = psi[ii].imag * sqrt(1.0/(psiSum * pars.dx * pars.dy));
+				tempR = psi[ii].real * sqrt(pars.nAtoms/(psiSum * pars.dx * pars.dy));
+				tempI = psi[ii].imag * sqrt(pars.nAtoms/(psiSum * pars.dx * pars.dy));
 				psi[ii].real = tempR;
 				psi[ii].imag = tempI;	
 			}
@@ -394,7 +386,8 @@ int main(){
 	int count = 0;
 	for (int i = 0; i < pars.nSteps; ++i)
 	{
-	
+
+		diagonalize(pMinusA, kinEnergy, maxCount, maxCount, pars);
 		if (i % modFac == 0)
 		{ 
 			printf("Real time step %d out of %d\n", i, pars.nSteps);
@@ -407,7 +400,7 @@ int main(){
 			std::string currFileName = "fits/psi" + std::to_string(i/modFac) + ".fits";
 			saveArray(absPsi, pars.N, currFileName.c_str(), pars, 0);
 		}
-		diagonalize(pMinusA, kinEnergy, maxCount, maxCount, pars);
+
 //		remove("energyX.fits");
 //		saveArray(pMinusA, pars.N, "energyX.fits", pars, 0);
 		
@@ -431,7 +424,6 @@ int main(){
 		vzMul(pars.N, psi, kinEnergyY, psi);		
 		status = DftiComputeBackward(descy, psi, psi);
 		if (0 != status) goto failed;
-		
 		status = DftiComputeForward(descx, psi, psi);
 		if (0 != status) goto failed;
 		vzMul(pars.N,psi,kinEnergy,psi);

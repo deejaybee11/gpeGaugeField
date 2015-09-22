@@ -51,8 +51,6 @@ xlen = fitsImage[0].header['LX']
 ylen = fitsImage[0].header['LY']
 xlen = xlen*1e6/2
 ylen = ylen*1e6/2
-print(xlen)
-print(ylen)
 fitsImage.close()
 
 plt.ioff()
@@ -72,54 +70,54 @@ ax.imshow(image, cmap = cm.afmhot, extent=[-xlen,xlen,-ylen,ylen])
 plt.savefig(folder+'/initPsi.png',dpi = 250)
 plt.close('all')
 
-filename = folder + "/energyX.fits"
-fitsImage = fits.open(filename, mode='readonly')
-image = fitsImage[0].data
-fitsImage.close()
+#filename = folder + "/energyX.fits"
+#fitsImage = fits.open(filename, mode='readonly')
+#image = fitsImage[0].data
+#fitsImage.close()
 
-plt.ioff()
-fig, ax = plt.subplots()
-ax.imshow(image, cmap = cm.afmhot)
-plt.savefig(folder+'/energyX.png',dpi = 250)
-cut = image[64,:]
-plt.close('all')
-plt.figure()
-plt.plot(cut)
-plt.savefig(folder+'/cut.png',dpi=250)
-plt.close('all')
+#plt.ioff()
+#fig, ax = plt.subplots()
+#ax.imshow(image, cmap = cm.afmhot)
+#plt.savefig(folder+'/energyX.png',dpi = 250)
+#cut = image[64,:]
+#plt.close('all')
+#plt.figure()
+#plt.plot(cut)
+#plt.savefig(folder+'/cut.png',dpi=250)
+#plt.close('all')
 
-filename = folder + "/energyY.fits"
-fitsImage = fits.open(filename, mode='readonly')
-image = fitsImage[0].data
-fitsImage.close()
+#filename = folder + "/energyY.fits"
+#fitsImage = fits.open(filename, mode='readonly')
+#image = fitsImage[0].data
+#fitsImage.close()
 
-plt.ioff()
-fig, ax = plt.subplots()
-ax.imshow(image, cmap = cm.afmhot)
-plt.savefig(folder+'/energyY.png',dpi = 250)
-plt.close('all')
+#plt.ioff()
+#fig, ax = plt.subplots()
+#ax.imshow(image, cmap = cm.afmhot)
+#plt.savefig(folder+'/energyY.png',dpi = 250)
+#plt.close('all')
 
-filename = folder + "/fftx.fits"
-fitsImage = fits.open(filename, mode='readonly')
-image = fitsImage[0].data
-fitsImage.close()
+#filename = folder + "/fftx.fits"
+#fitsImage = fits.open(filename, mode='readonly')
+#image = fitsImage[0].data
+#fitsImage.close()
 
-plt.ioff()
-fig, ax = plt.subplots()
-ax.imshow(np.fft.fftshift(image,axes=1), cmap = cm.afmhot)
-plt.savefig(folder+'/fftx.png',dpi = 250)
-plt.close('all')
+#plt.ioff()
+#fig, ax = plt.subplots()
+#ax.imshow(np.fft.fftshift(image,axes=1), cmap = cm.afmhot)
+#plt.savefig(folder+'/fftx.png',dpi = 250)
+#plt.close('all')
 
-filename = folder + "/ffty.fits"
-fitsImage = fits.open(filename, mode='readonly')
-image = fitsImage[0].data
-fitsImage.close()
+#filename = folder + "/ffty.fits"
+#fitsImage = fits.open(filename, mode='readonly')
+#image = fitsImage[0].data
+#fitsImage.close()
 
-plt.ioff()
-fig, ax = plt.subplots()
-ax.imshow(np.fft.fftshift(image,axes=0), cmap = cm.afmhot)
-plt.savefig(folder+'/ffty.png',dpi = 250)
-plt.close('all')
+#plt.ioff()
+#fig, ax = plt.subplots()
+#ax.imshow(np.fft.fftshift(image,axes=0), cmap = cm.afmhot)
+#plt.savefig(folder+'/ffty.png',dpi = 250)
+#plt.close('all')
 
 
 

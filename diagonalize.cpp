@@ -54,16 +54,18 @@ int diagonalize(double *pMinusA, MKL_Complex16 *kinEnergy, int count, int maxCou
 	double *delta;
 	delta = (double*)mkl_malloc(pars.nY*sizeof(double), 64);
 	int index;
+	int j = 0;
 	double min;
-	
-	int counter[2] = {0,0};
+	if(count > maxCount)
+	{
+		return 0;
+	}
 	for(int i = 0; i < pars.nY; ++i)
 	{
 		delta[i] = ((double)count/(double)maxCount)*pars.detuningGradient*pars.y[i];
 	
 	}
-	
-	#pragma omp parallel for		
+	#pragma omp parallel for private(j, index, min, H1, H2, H3, eigenVals)		
 	for(int i = 0; i < pars.nY; ++i)
 	{
 		for(int j = 0; j < pars.nX; ++j)
@@ -92,7 +94,7 @@ int diagonalize(double *pMinusA, MKL_Complex16 *kinEnergy, int count, int maxCou
 		} 
 	}
 	for (int i = 0; i < pars.N; ++i)
-	{;
+	{
 		kinEnergy[i].real = cos((0.5*pars.dt / HBAR) * pMinusA[i]);
 		kinEnergy[i].imag = -1*sin((0.5*pars.dt / HBAR) * pMinusA[i]);
 	}
