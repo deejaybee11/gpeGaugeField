@@ -81,8 +81,8 @@ int main(){
 	pars.sigmaY = 2.5e-6;
 	
 	/*Length of each dimension in metres*/
-	pars.xGridLength = 20e-6;
-	pars.yGridLength = 20e-6;
+	pars.xGridLength = 25e-6;
+	pars.yGridLength = 25e-6;
 	
 	/*Trap frequencies in each dimension*/
 	pars.omegaX = 2*M_PI*150;
@@ -92,9 +92,9 @@ int main(){
 	pars.mass = 87 * 1.667e-27;
 	
 	/*Iteration parameters*/
-	pars.nSteps = 1000000000;
+	pars.nSteps = 1001;
 	pars.iSteps = 1000000;//500000;
-	int maxCount = 200000000; //Number of steps until field is at max strength
+	int maxCount = 20000000; //Number of steps until field is at max strength
 	pars.imProp = true;
 	pars.dt = 1e-9;
 	
@@ -262,7 +262,7 @@ int main(){
 	
 	printf("Beginning imaginary time iteration\n");
 	/*Loop which performs the TSSP algorithm*/
-	int modFac = 500;
+	int modFac = 1000;
 	
 	double tempR = 0;
 	double tempI = 0;
@@ -354,10 +354,6 @@ int main(){
 		//Square absPsi
 		vdMul(pars.N,absPsi,absPsi,absPsi);
 		
-		//Save to text file initialPsi.txt
-		remove("groundState.fits");
-		saveArray(absPsi, pars.N, "groundState.fits", pars, 0);
-		//savefile(psi, "initPsi.txt", pars);
 		vzAbs(pars.N,psi,absPsi);
 		for(int i = 0; i < pars.N; ++i)
 		{
@@ -367,15 +363,8 @@ int main(){
 	}
 	else
 	{
-		//loadfile(psi, pars.N, "initPsi.txt");
-		//printf("Ground state loaded\n");
 		init(psi,pars);
 	}
-	
-	/*Reassign kinetic energy and harmonic trap arrays for real time evolution*/
-
-	//createKineticEnergy(kinEnergy, pars, false);
-	//printf("Ek and V arrays reassigned for real time evolution.\n");
 	
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -387,7 +376,7 @@ int main(){
 	for (int i = 0; i < pars.nSteps; ++i)
 	{
 
-		diagonalize(pMinusA, kinEnergy, maxCount, maxCount, pars);
+		diagonalize(pMinusA, kinEnergy, 0, maxCount, pars);
 		if (i % modFac == 0)
 		{ 
 			printf("Real time step %d out of %d\n", i, pars.nSteps);
@@ -398,11 +387,11 @@ int main(){
 			vdMul(pars.N,absPsi,absPsi,absPsi);
 			//Save to text file initialPsi.txt
 			std::string currFileName = "fits/psi" + std::to_string(i/modFac) + ".fits";
+			std::string eFileName = "fits/en" + std::to_string(i/modFac) + ".fits";
 			saveArray(absPsi, pars.N, currFileName.c_str(), pars, 0);
+			saveArray(pMinusA, pars.N, eFileName.c_str(), pars, 0);
 		}
 
-//		remove("energyX.fits");
-//		saveArray(pMinusA, pars.N, "energyX.fits", pars, 0);
 		
 		/*Forward FFT*/
 		status = DftiComputeForward(descx, psi, psi);

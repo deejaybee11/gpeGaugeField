@@ -25,7 +25,7 @@ import struct
 from astropy.io import fits
 from matplotlib import cm
 import glob
-
+import time
 plt.close("all")
 
 root = tk.Tk()
@@ -44,31 +44,31 @@ for i in glob.glob(folder+"/fits/psi" + "*.fits"):
 for i in glob.glob(folder+"/pngs/" + "*.png"):
     os.remove(i)
 
-filename = folder + "/groundState.fits"
-fitsImage = fits.open(filename, mode='readonly')
-image = fitsImage[0].data
-xlen = fitsImage[0].header['LX']
-ylen = fitsImage[0].header['LY']
-xlen = xlen*1e6/2
-ylen = ylen*1e6/2
-fitsImage.close()
+#filename = folder + "/groundState.fits"
+#fitsImage = fits.open(filename, mode='readonly')
+#image = fitsImage[0].data
+#xlen = fitsImage[0].header['LX']
+#ylen = fitsImage[0].header['LY']
+#xlen = xlen*1e6/2
+#ylen = ylen*1e6/2
+#fitsImage.close()
 
-plt.ioff()
-fig, ax = plt.subplots()
-ax.imshow(image, cmap = cm.afmhot, extent=[-xlen,xlen,-ylen,ylen])
-plt.savefig(folder+'/groundState.png',dpi = 250)
-plt.close('all')
+#plt.ioff()
+#fig, ax = plt.subplots()
+#ax.imshow(image, cmap = cm.afmhot, extent=[-xlen,xlen,-ylen,ylen])
+#plt.savefig(folder+'/groundState.png',dpi = 250)
+#plt.close('all')
 #
-filename = folder + "/initPsi.fits"
-fitsImage = fits.open(filename, mode='readonly')
-image = fitsImage[0].data
-fitsImage.close()
+#filename = folder + "/initPsi.fits"
+#fitsImage = fits.open(filename, mode='readonly')
+#image = fitsImage[0].data
+#fitsImage.close()
 
-plt.ioff()
-fig, ax = plt.subplots()
-ax.imshow(image, cmap = cm.afmhot, extent=[-xlen,xlen,-ylen,ylen])
-plt.savefig(folder+'/initPsi.png',dpi = 250)
-plt.close('all')
+#plt.ioff()
+#fig, ax = plt.subplots()
+#ax.imshow(image, cmap = cm.afmhot, extent=[-xlen,xlen,-ylen,ylen])
+#plt.savefig(folder+'/initPsi.png',dpi = 250)
+#plt.close('all')
 
 #filename = folder + "/energyX.fits"
 #fitsImage = fits.open(filename, mode='readonly')
@@ -122,12 +122,17 @@ plt.close('all')
 
 
 ##
+time.sleep(5);
 for i in range(0,numfiles):
 
     print("Importing psi file number " + str(i))    
     
     filename = folder + "/fits/psi" + str(i) + ".fits"
     fitsImage = fits.open(filename,mode='readonly')
+    xlen = fitsImage[0].header['LX']
+    ylen = fitsImage[0].header['LY']
+    xlen = xlen*1e6/2
+    ylen = ylen*1e6/2
     image = (fitsImage[0].data)
     fitsImage.close()
     
@@ -141,6 +146,22 @@ for i in range(0,numfiles):
         plt.savefig(folder+"/pngs"+'/Psi00'+str(i)+'.png',dpi = 250)
     elif i>=10:
         plt.savefig(folder+"/pngs"+'/Psi0'+str(i)+'.png',dpi = 250) 
+
+    plt.close('all')
+
+    filename = folder + "/fits/en" + str(i) + ".fits"
+    fitsImage = fits.open(filename,mode='readonly')
+    image = (fitsImage[0].data)
+    fitsImage.close()
+    
+    plt.ioff()
+    fig, ax = plt.subplots()
+    ax.imshow(image, cmap = cm.afmhot, extent=[-xlen,xlen,-ylen,ylen])
+    
+    if i<10:
+        plt.savefig(folder+"/pngs"+'/en00'+str(i)+'.png',dpi = 250)
+    elif i>=10:
+        plt.savefig(folder+"/pngs"+'/en0'+str(i)+'.png',dpi = 250) 
 
     plt.close('all')
 #for i in range(0,numfiles):
