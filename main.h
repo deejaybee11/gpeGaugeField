@@ -31,6 +31,7 @@ SOFTWARE.*/
 static void saveArray(double *absPsi, int N, const char * fitsFileName, struct simPars pars, int posSpace);
 void savefile(MKL_Complex16 *psi, const char *filename, struct simPars pars);
 void loadfile(MKL_Complex16 *psi, int n, const char * filename);
+void savefile(double *array, const char *filename, int size);
 
 struct simPars
 {

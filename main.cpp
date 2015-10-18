@@ -92,12 +92,30 @@ int main(){
 	pars.mass = 87 * 1.667e-27;
 	
 	/*Iteration parameters*/
-	pars.nSteps = 1001;
+	pars.nSteps = 1200000;
 	pars.iSteps = 1000000;//500000;
-	int maxCount = 20000000; //Number of steps until field is at max strength
+	int maxCount = 200000; //Number of steps until field is at max strength
 	pars.imProp = true;
 	pars.dt = 1e-9;
-	
+
+	double *myLorentz = 0;
+	myLorentz = (double*)mkl_malloc(maxCount*sizeof(double), 64);
+	double *myVal = 0;
+	myVal = (double*)mkl_malloc(maxCount*sizeof(double), 64);
+	double myWidth = 2.3;
+	for(int i = 0; i < maxCount; ++i)
+	{
+		myVal[i] = 0 + i * 2 * M_PI/ ((double)maxCount - 1.0);
+	}
+	savefile(myVal, "myval.txt", maxCount);
+	printf("myVal[0] = %f\n", myVal[0]);
+	for(int i = 0; i < maxCount; ++i)
+	{
+		myLorentz[i] = 1 - (myWidth) / (pow(myVal[i],2.0) + pow(myWidth,2.0));
+	}
+	savefile(myLorentz, "ramp.txt", maxCount);
+	printf("myLorentz[0] = %f\n", myLorentz[0]);
+
 	/*Gauge potential parameters*/
 	pars.kRaman = 2*M_PI/780e-9;
 	pars.eRec = pow(HBAR,2)*pow(pars.kRaman,2)/(2*pars.mass);
@@ -262,7 +280,7 @@ int main(){
 	
 	printf("Beginning imaginary time iteration\n");
 	/*Loop which performs the TSSP algorithm*/
-	int modFac = 1000;
+	int modFac = 2400;
 	
 	double tempR = 0;
 	double tempI = 0;
@@ -376,7 +394,7 @@ int main(){
 	for (int i = 0; i < pars.nSteps; ++i)
 	{
 
-		diagonalize(pMinusA, kinEnergy, 0, maxCount, pars);
+		diagonalize(pMinusA, kinEnergy, count, maxCount, myLorentz[count], pars);
 		if (i % modFac == 0)
 		{ 
 			printf("Real time step %d out of %d\n", i, pars.nSteps);
@@ -387,9 +405,8 @@ int main(){
 			vdMul(pars.N,absPsi,absPsi,absPsi);
 			//Save to text file initialPsi.txt
 			std::string currFileName = "fits/psi" + std::to_string(i/modFac) + ".fits";
-			std::string eFileName = "fits/en" + std::to_string(i/modFac) + ".fits";
 			saveArray(absPsi, pars.N, currFileName.c_str(), pars, 0);
-			saveArray(pMinusA, pars.N, eFileName.c_str(), pars, 0);
+		//	printf("Field strength is %f %f.\n", myLorentz[count], pars.detuningGradient);
 		}
 
 		
@@ -438,7 +455,14 @@ int main(){
 			psi[ii].imag = tempI;
 		}
 		psiSum = 0;
-		count++;
+		if(count==maxCount)
+		{
+			count=maxCount;
+		}
+		else
+		{
+			count++;
+		}
 	}
 	printf("\033[0m");
 	printf("\033[300C\n");
@@ -516,6 +540,19 @@ void savefile(MKL_Complex16 *psi, const char *filename, struct simPars pars)
 	for (int i = 0; i < pars.N; ++i)
 	{
 		output << psi[i].real << " " << psi[i].imag << "\n";
+    	}
+    	output.close();
+
+}
+
+void savefile(double *array, const char *filename, int size)
+{
+	remove(filename);
+	std::ofstream output(filename);
+	output << size << "\n";
+	for (int i = 0; i < size; ++i)
+	{
+		output << array[i] << "\n";
     	}
     	output.close();
 

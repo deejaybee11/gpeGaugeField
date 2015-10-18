@@ -122,7 +122,7 @@ void createNonlinearEnergy(MKL_Complex16 *posPot, MKL_Complex16 *psi, struct sim
 				index = ii*pars.nY + jj;
 				hPotVal = 0;
 				posPot[index].real = cos((pars.nAtoms*pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
-				posPot[index].imag = -1*sin((pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
+				posPot[index].imag = -1*sin((pars.nAtoms*pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
 			}
 		}
 	}
@@ -136,7 +136,7 @@ void createNonlinearEnergy(MKL_Complex16 *posPot, MKL_Complex16 *psi, struct sim
 				index = ii*pars.nY + jj;
 				hPotVal = ((pars.mass/2.0) * (pow(pars.omegaX,2.0)*pow(pars.x[ii],2.0) + pow(pars.omegaY,2.0)*pow(pars.y[jj],2.0)));
 				posPot[index].real = cos((pars.nAtoms*pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
-				posPot[index].imag = -1*sin((pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
+				posPot[index].imag = -1*sin((pars.nAtoms*pars.intPot * (psi[index].real*psi[index].real + psi[index].imag*psi[index].imag) + hPotVal) * pars.dt / HBAR);
 			}
 		}
 	}

@@ -137,7 +137,7 @@ for i in range(0,numfiles):
     fitsImage.close()
     
     plt.ioff()
-#for i in range(0,numfiles):
+
     
     fig, ax = plt.subplots()
     ax.imshow(image, cmap = cm.afmhot, extent=[-xlen,xlen,-ylen,ylen])
@@ -148,22 +148,8 @@ for i in range(0,numfiles):
         plt.savefig(folder+"/pngs"+'/Psi0'+str(i)+'.png',dpi = 250) 
 
     plt.close('all')
-
-    filename = folder + "/fits/en" + str(i) + ".fits"
-    fitsImage = fits.open(filename,mode='readonly')
-    image = (fitsImage[0].data)
-    fitsImage.close()
     
-    plt.ioff()
-    fig, ax = plt.subplots()
-    ax.imshow(image, cmap = cm.afmhot, extent=[-xlen,xlen,-ylen,ylen])
-    
-    if i<10:
-        plt.savefig(folder+"/pngs"+'/en00'+str(i)+'.png',dpi = 250)
-    elif i>=10:
-        plt.savefig(folder+"/pngs"+'/en0'+str(i)+'.png',dpi = 250) 
 
-    plt.close('all')
 #for i in range(0,numfiles):
 #    print("Importing phi file number " + str(i))    
 #    

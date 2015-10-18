@@ -46,7 +46,7 @@ SOFTWARE.*/
 #define Nm 3
 
 
-int diagonalize(double *pMinusA, MKL_Complex16 *kinEnergy, int count, int maxCount, struct simPars pars)
+int diagonalize(double *pMinusA, MKL_Complex16 *kinEnergy, int count, int maxCount, double rampFac, struct simPars pars)
 {
 	double H1, H2, H3;
 	MKL_INT info, n = Nm, lda = 3, ldvl = 3, ldvr = 3;
@@ -62,7 +62,7 @@ int diagonalize(double *pMinusA, MKL_Complex16 *kinEnergy, int count, int maxCou
 	}
 	for(int i = 0; i < pars.nY; ++i)
 	{
-		delta[i] = ((double)count/(double)maxCount)*pars.detuningGradient*pars.y[i];
+		delta[i] = rampFac*pars.detuningGradient*pars.y[i];
 	
 	}
 	#pragma omp parallel for private(j, index, min, H1, H2, H3, eigenVals)		

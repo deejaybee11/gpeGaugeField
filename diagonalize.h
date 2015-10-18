@@ -41,4 +41,4 @@ SOFTWARE.*/
 
 #define HBAR 1.054e-34
 
-int diagonalize(double *pMinusA, MKL_Complex16 *kinEnergy, int count, int maxCount, struct simPars pars); 
+int diagonalize(double *pMinusA, MKL_Complex16 *kinEnergy, int count, int maxCount, double rampFac, struct simPars pars); 
